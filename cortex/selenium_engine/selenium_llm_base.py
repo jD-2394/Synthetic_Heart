@@ -4138,7 +4138,6 @@ class SeleniumLLMBase(AIPluginBase):
         """
         try:
             # Try to find JSON part (after the canonical separator) and parse it
-            json_start = None
             if "\n---\n" in prompt_text:
                 idx = prompt_text.find("\n---\n")
                 # JSON likely after the separator

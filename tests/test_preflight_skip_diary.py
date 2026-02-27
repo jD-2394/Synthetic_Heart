@@ -1,10 +1,4 @@
 import pytest
-
-pytest.skip(
-    "Legacy preflight diary skip removed (Recon replaces it)",
-    allow_module_level=True,
-)
-
 from core import action_parser as ap
 
 

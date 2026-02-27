@@ -252,8 +252,8 @@ async def test_restore_archive_with_empty_messages_keeps_archive():
             patch(
                 "core.chat_archives_db.create_archive",
                 AsyncMock(return_value={"id": "arch-created"}),
-            ) as mock_create,
-            patch("core.chat_archives_db.delete_archive", AsyncMock()) as mock_delete,
+            ),
+            patch("core.chat_archives_db.delete_archive", AsyncMock()),
             patch(
                 "core.chat_history_cache.save_chat_message",
                 AsyncMock(side_effect=fake_save),

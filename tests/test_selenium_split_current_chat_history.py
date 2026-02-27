@@ -1,6 +1,7 @@
 import json
 import sys
 import types
+from cortex.selenium_engine.selenium_llm_base import SeleniumLLMBase
 
 # Prevent heavy undetected_chromedriver import side-effects during tests by
 # inserting a lightweight dummy module before importing SeleniumLLMBase
@@ -8,7 +9,6 @@ sys.modules.setdefault(
     "undetected_chromedriver", types.ModuleType("undetected_chromedriver")
 )
 
-from cortex.selenium_engine.selenium_llm_base import SeleniumLLMBase
 
 
 def test_split_includes_current_chat_history():

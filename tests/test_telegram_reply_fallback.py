@@ -105,9 +105,6 @@ def test_manual_tracks_last_sent_chunk(monkeypatch):
 
     plugin = ManualAIPlugin()
 
-    # Create prompt JSON long enough to produce two chunks
-    prompt_json = "x" * 5000
-
     # Make safe_send return two chunk messages, last one with message_id
     sent_objs = [None, types.SimpleNamespace(message_id=9002)]
 

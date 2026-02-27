@@ -63,7 +63,7 @@ def test_interface_registration_with_config(monkeypatch):
         lambda *args, **kwargs: "discord:alice",
     )
     # instantiate; token may be blank
-    iface = discord_interface.DiscordInterface("")
+    discord_interface.DiscordInterface("")
     assert captured["iface"] == "discord_bot"
     assert captured["tid"] == "alice"
 

@@ -732,8 +732,6 @@ class MatrixInterface:
             log_info("[matrix_interface] Applying configuration changes from registry")
 
             # Read current values from ConfigVar wrappers
-            new_homeserver = str(MATRIX_HOMESERVER).rstrip("/")
-            new_user = str(MATRIX_USER)
             new_password = (
                 MATRIX_PASSWORD.value
                 if hasattr(MATRIX_PASSWORD, "value")
@@ -744,9 +742,6 @@ class MatrixInterface:
                 if hasattr(MATRIX_ACCESS_TOKEN, "value")
                 else MATRIX_ACCESS_TOKEN
             )
-            new_device_id = MATRIX_DEVICE_ID if MATRIX_DEVICE_ID else None
-            new_device_name = str(MATRIX_DEVICE_NAME)
-            new_store_path = MATRIX_STORE_PATH if MATRIX_STORE_PATH else None
 
             new_allowed = get_matrix_allowed_rooms() or set()
             new_auto_join = bool(MATRIX_AUTO_JOIN)

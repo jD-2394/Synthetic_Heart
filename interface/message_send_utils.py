@@ -9,6 +9,7 @@ except Exception:
         pass
 
 
+from core.config_manager import ConfigRegistry
 from core.logging_utils import (
     log_debug,
     log_info,
@@ -49,6 +50,12 @@ _COOLDOWN_PROCESSOR_RUNNING = False
 
 # Maximum preview length for logging failed messages
 max_message_preview_len = 100
+
+TELEGRAM_TRAINER_ID = ConfigRegistry.get_var(
+    "TELEGRAM_TRAINER_ID",
+    "",
+    value_type="string"
+)
 
 
 def truncate_message(text: Optional[str], limit: int = 4000) -> str:
@@ -308,7 +315,7 @@ async def _send_with_retry(
                     raise e
                 # If it's a non-parse error and not recoverable, re-raise to be handled by caller
                 raise
-    trainer_id = TELEGRAM_TRAINER_ID
+    trainer_id = str(TELEGRAM_TRAINER_ID)
     if trainer_id:
         try:
             await bot.send_message(
@@ -419,7 +426,9 @@ async def safe_edit(
                 )
         except Exception:
             raise
-    trainer_id = TELEGRAM_TRAINER_ID
+    trainer_id = str(TELEGRAM_TRAINER_ID)
+
+    
     if trainer_id:
         try:
             await bot.send_message(

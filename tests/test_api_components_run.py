@@ -1,10 +1,9 @@
 import asyncio
 
+from pydantic import json
 from core.webui import SynthWebUIInterface
-
-
 import pytest
-
+from fastapi import HTTPException
 
 @pytest.mark.asyncio
 async def test_run_component_with_run_action(monkeypatch):
@@ -30,10 +29,6 @@ async def test_run_component_with_run_action(monkeypatch):
             del PLUGIN_REGISTRY["fake_runner"]
         else:
             PLUGIN_REGISTRY["fake_runner"] = prev
-
-
-import pytest
-
 
 @pytest.mark.asyncio
 async def test_run_grillo_compactor_dry_run(monkeypatch):
@@ -128,11 +123,6 @@ async def test_run_grillo_compactor_dry_run(monkeypatch):
             del PLUGIN_REGISTRY["grillo_compactor"]
         else:
             PLUGIN_REGISTRY["grillo_compactor"] = prev
-
-
-import pytest
-from fastapi import HTTPException
-
 
 @pytest.mark.asyncio
 async def test_run_component_rejects_missing_run(monkeypatch):

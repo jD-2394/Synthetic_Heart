@@ -371,7 +371,7 @@ class TestMessageChainIntegration(unittest.TestCase):
         )
 
         # Call fallback sender
-        result = await message_chain.send_llm_fallback_message(
+        await message_chain.send_llm_fallback_message(
             bot,
             msg,
             "Test failure",
@@ -411,6 +411,7 @@ class TestMessageChainIntegration(unittest.TestCase):
         # After completion, the fake plugin should have received message.thread_id == 99
         self.assertEqual(recorded.get("thread_id"), 99)
 
+        from core.transport_layer import extract_json_from_text
         # Test invalid JSON
         result = extract_json_from_text('{"invalid": json}')
         self.assertIsNone(result)

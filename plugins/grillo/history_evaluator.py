@@ -104,9 +104,6 @@ This plugin intentionally is non-LLM and implemented as a standard PluginBase,
 so it is registered under `plugins/` and available via the core plugin registry.
 """
 
-from core.plugin_base import PluginBase
-from typing import Optional
-
 display_name = "Grillo History Evaluator"
 
 

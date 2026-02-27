@@ -16,7 +16,12 @@ from typing import Any, Dict, List, Optional, Tuple
 from datetime import datetime, timedelta, timezone
 import re
 import time
-
+from core.core_initializer import register_plugin
+from core.logging_utils import log_info, log_debug, log_error, log_warning
+from core.config_manager import config_registry
+from core.db import get_conn_ctx
+from core.variables_engine import register_exposed_var
+from core.auto_response import request_llm_delivery
 
 # Helper: map human-friendly keywords to sensible durations (some include slack already)
 _SPECIAL_TIME_MAP = {
@@ -192,14 +197,6 @@ def _parse_time_window_spec(spec: Any) -> Optional[Tuple[datetime, datetime]]:
             return (now - d, now)
 
     return None
-
-
-from core.core_initializer import register_plugin
-from core.logging_utils import log_info, log_debug, log_error, log_warning
-from core.config_manager import config_registry
-from core.db import get_conn_ctx
-from core.variables_engine import register_exposed_var
-from core.auto_response import request_llm_delivery
 
 # Exposed variables
 register_exposed_var(

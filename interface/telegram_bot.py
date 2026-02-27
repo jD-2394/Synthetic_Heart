@@ -6,7 +6,28 @@ import asyncio
 import time
 from typing import Optional
 from telegram import Update, Bot
-
+from dotenv import load_dotenv  # type: ignore
+from plugins.blocklist import block_user, unblock_user, get_blocked_users
+from plugins.message_map import init_message_map_table, cleanup_old_mappings
+from core import response_proxy
+from core import message_queue
+from core import recent_chats  # For command functions only, not for tracking
+from core.mention_utils import is_message_for_bot
+from core.logging_utils import log_debug, log_info, log_warning, log_error
+from core.chat_attention import set_attention, get_attention, evaluate_triggers
+from core.command_registry import execute_command, handle_command_message
+from plugins.chat_link import ChatLinkMultipleMatches, ChatLinkStore
+import core.plugin_instance as plugin_instance
+from core.core_initializer import register_interface
+from core.interfaces_registry import get_interface_registry
+from core.config_manager import config_registry
+from core.variables_engine import register_exposed_var
+from telegram.ext import (
+    ApplicationBuilder,
+    MessageHandler,
+    ContextTypes,
+    filters,
+)
 # Some test environments may not expose all exception names from python-telegram-bot
 try:
     from telegram.error import TelegramError, RetryAfter, BadRequest, TimedOut
@@ -25,21 +46,8 @@ except Exception:
         pass
 
 
-from telegram.ext import (
-    ApplicationBuilder,
-    MessageHandler,
-    ContextTypes,
-    filters,
-)
-from dotenv import load_dotenv  # type: ignore
-from plugins.blocklist import block_user, unblock_user, get_blocked_users
-from plugins.message_map import init_message_map_table, cleanup_old_mappings
-from core import response_proxy
-from core import message_queue
-from core import recent_chats  # For command functions only, not for tracking
-from core.mention_utils import is_message_for_bot
-from core.logging_utils import log_debug, log_info, log_warning, log_error
-from core.chat_attention import set_attention, get_attention, evaluate_triggers
+
+
 from interface.message_send_utils import (
     safe_send,
     send_with_thread_fallback,
@@ -53,16 +61,8 @@ from core.config import (
     set_log_chat_id_and_thread,
     get_log_chat_id_sync,
 )
-from core.command_registry import execute_command, handle_command_message
-
-from plugins.chat_link import ChatLinkStore
 
 chat_link_store = ChatLinkStore()
-import core.plugin_instance as plugin_instance
-from core.core_initializer import register_interface
-from core.interfaces_registry import get_interface_registry
-from core.config_manager import config_registry
-from core.variables_engine import register_exposed_var
 
 # Get interface registry for trainer verification
 _interface_registry = get_interface_registry()
@@ -259,7 +259,7 @@ async def _resolve_original_from_reply(reply_message):
             log_debug(f"[telegram_bot] plugin lookup for {mid} -> {repr(tracked)}")
         except Exception as e:
             tracked = None
-            log_exception(f"Failed to query plugin mapping: {e}")
+            log_debug(f"Failed to query plugin mapping: {e}")
         if tracked:
             # support both tuple and dict return types
             log_debug(
@@ -336,7 +336,7 @@ async def _resolve_original_from_reply(reply_message):
             )
             return int(m.group(1)), int(m.group(2))
         except Exception as e:
-            log_exception(f"Error parsing textual fallback: {e}")
+            log_debug(f"Error parsing textual fallback: {e}")
 
     log_debug(f"[telegram_bot] no mapping found for trainer_msg_id={trainer_mid}")
     return None, None
@@ -465,7 +465,6 @@ async def test_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     log_debug("/test received")
     await update.message.reply_text("✅ Test OK")
 
-
 async def last_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_trainer(update.effective_user.id):
         return
@@ -475,21 +474,13 @@ async def last_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text("⚠️ No recent chat found.")
         return
 
-    lines = [f"[{name}](tg://user?id={cid}) — `{cid}`" for cid, name in entries]
+    lines = [
+        f"[{escape_markdown(name)}](tg://user?id={cid}) — `{cid}`"
+        for cid, name in entries
+    ]
     await update.message.reply_text(
         "\U0001f553 Last active chats:\n" + "\n".join(lines), parse_mode="Markdown"
     )
-
-    entries = await recent_chats.get_last_active_chats_verbose(10, context.bot)
-    if not entries:
-        await update.message.reply_text("⚠️ No recent chat found.")
-        return
-
-    lines = [f"[{name}](tg://user?id={cid}) — `{cid}`" for cid, name in entries]
-    await update.message.reply_text(
-        "\U0001f553 Last active chats:\n" + "\n".join(lines), parse_mode="Markdown"
-    )
-
 
 async def _inject_memory_interaction(
     chat_id: int,
@@ -741,21 +732,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not message or not message.from_user:
         log_debug("Message ignored (empty or no sender)")
         return
-
-    # LIVE MEDIA HANDLING (Voice, Video, Video Note)
-    # Disabled: voice/video now flows through the normal message pipeline as
-    # multimodal attachments (static multimodal), preserving full context
-    # instead of being processed in isolation with a generic system prompt.
-    # if message.voice or message.video_note or message.video:
-    #     supports_live = False
-    #     if plugin_instance.plugin:
-    #         supports_live = getattr(
-    #             plugin_instance.plugin, "supports_voice_interaction", False
-    #         ) or hasattr(plugin_instance.plugin, "handle_live_processing")
-    #     if supports_live:
-    #         log_debug("[telegram_bot] Routing to Live Media Handler")
-    #         await handle_media_live(update, context)
-    #         return
 
     user = message.from_user
     user_id = user.id
@@ -1207,22 +1183,7 @@ def escape_markdown(text):
     return re.sub(r"([_*\[\]()~`>#+=|{}.!-])", r"\\\1", text)
 
 
-async def last_chats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not is_trainer(update.effective_user.id):
-        return
 
-    entries = await recent_chats.get_last_active_chats_verbose(10, context.bot)
-    if not entries:
-        await update.message.reply_text("⚠️ No recent chat found.")
-        return
-
-    lines = [
-        f"[{escape_markdown(name)}](tg://user?id={cid}) — `{cid}`"
-        for cid, name in entries
-    ]
-    await update.message.reply_text(
-        "\U0001f553 Last active chats:\n" + "\n".join(lines), parse_mode="Markdown"
-    )
 
 
 async def manage_chat_id_command(update: Update, context: ContextTypes.DEFAULT_TYPE):

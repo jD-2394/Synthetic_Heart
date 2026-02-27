@@ -1,15 +1,13 @@
+from types import SimpleNamespace
+from datetime import datetime
+
+from plugins.memory_search import MemorySearchPlugin
 import pytest
 
 pytest.skip(
     "Legacy memory_search plugin removed (Recon replaces it)",
     allow_module_level=True,
 )
-
-from types import SimpleNamespace
-from datetime import datetime
-
-from plugins.memory_search import MemorySearchPlugin
-
 
 def test_validate_payload_tags_ok():
     p = MemorySearchPlugin()

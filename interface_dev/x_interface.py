@@ -10,13 +10,14 @@ from __future__ import annotations
 import os
 import asyncio
 from typing import Any, Dict, List
+from core.logging_utils import log_info, log_debug, log_warning
+from core.core_initializer import register_interface, core_initializer
 
 # snscrape has compatibility issues with Python 3.12, disable for now
 SNSCRAPE_AVAILABLE = False
 sntwitter = None
 
-from core.logging_utils import log_info, log_debug, log_warning
-from core.core_initializer import register_interface, core_initializer
+
 
 log_warning("[x_interface] snscrape disabled due to Python 3.12 compatibility issues")
 

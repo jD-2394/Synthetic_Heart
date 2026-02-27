@@ -25,6 +25,7 @@ class TestSmoke(unittest.TestCase):
             import core.action_parser
             import core.core_initializer
             import core.prompt_engine
+            self.assertIsNotNone(core.prompt_engine)
         except ImportError as e:
             self.fail(f"Failed to import core module: {e}")
 
@@ -50,7 +51,7 @@ class TestSmoke(unittest.TestCase):
         try:
             # This should not raise a circular import error
             import core.persona_manager
-            from core.persona_manager import PersonaManager, get_persona_manager
+            from core.persona_manager import get_persona_manager
 
             # Verify the module has expected exports
             self.assertTrue(hasattr(core.persona_manager, "PersonaManager"))

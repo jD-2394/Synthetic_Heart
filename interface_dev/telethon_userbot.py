@@ -1,12 +1,17 @@
 from telethon import TelegramClient, events
-
+from plugins import blocklist
+from plugins.blocklist import block_user, unblock_user, get_blocked_users
+from core import recent_chats  # For command functions only, not for tracking
+from core.auto_response import request_llm_delivery
+from core.core_initializer import register_interface, core_initializer
+from core.config_manager import config_registry
+from core.interfaces_registry import get_interface_registry
 try:
     from dotenv import load_dotenv  # type: ignore
 except Exception:  # pragma: no cover - fallback if python-dotenv not installed
 
     def load_dotenv(*args, **kwargs):
         return False
-
 
 import os
 import re
@@ -18,28 +23,11 @@ from core.config import (
     list_available_cortex_engines,
     get_active_cortex_engine,
 )
-
-try:
-    from dotenv import load_dotenv  # type: ignore
-except Exception:  # pragma: no cover - fallback if python-dotenv not installed
-
-    def load_dotenv(*args, **kwargs):
-        return False
-
-
-from core.interfaces_registry import get_interface_registry
-
-# from core import blocklist, response_proxy, say_proxy, recent_chats  # Moved to plugins
-from plugins.blocklist import block_user, unblock_user, get_blocked_users
-from core import recent_chats  # For command functions only, not for tracking
-from core.auto_response import request_llm_delivery
-from core.core_initializer import register_interface, core_initializer
-
 # Load environment variables and get trainer ID
 load_dotenv()
 _interface_registry = get_interface_registry()
 
-from core.config_manager import config_registry
+
 
 # Read TRAINER_IDS from the central config registry so runtime changes are respected
 TELEGRAM_TRAINER_ID_STR = []

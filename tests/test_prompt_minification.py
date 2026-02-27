@@ -165,7 +165,6 @@ class TestReducePromptForLLMLimit:
         reduced_size = len(json_dumps(reduced))
 
         # Instructions should be minified in the reduced version
-        minified_inst = reduced.get("instructions", "")
 
         # Should have no leading/trailing newlines in each section
         # (minified version should be compact)
@@ -191,7 +190,6 @@ class TestReducePromptForLLMLimit:
         """Should preserve input and instructions even during reduction."""
         prompt = self.create_test_prompt(num_memories=5, num_chat_messages=5)
         original_input = copy.deepcopy(prompt.get("input"))
-        original_instructions = prompt.get("instructions")
 
         original_size = len(json_dumps(prompt))
         reduced = reduce_prompt_for_llm_limit(prompt, original_size - 3000)

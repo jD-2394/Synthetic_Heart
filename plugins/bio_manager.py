@@ -1099,6 +1099,39 @@ class BioPlugin:
                 return p["id"]
         return None
 
+    def update_user_name(user_id: str, new_name: str) -> None:
+        """Update user's primary name, moving old name to known_as if it exists."""
+        _ensure_user_exists(user_id)
+        current = get_bio_full(user_id)
+
+        # Get current user_name and known_as
+        current_name = current.get("user_name")
+        known_as = current.get("known_as", [])
+
+        # Parse known_as if it's a JSON string
+        if isinstance(known_as, str):
+            try:
+                known_as = json.loads(known_as)
+            except:
+                known_as = []
+
+        # If there's an existing name, move it to known_as
+        if current_name and current_name != new_name:
+            if current_name not in known_as:
+                known_as.append(current_name)
+
+        # Remove new name from known_as if it's there
+        if new_name in known_as:
+            known_as.remove(new_name)
+
+        # Update both fields
+        updates = {"user_name": new_name, "known_as": known_as}
+
+        update_bio_fields(user_id, updates)
+        log_info(
+            f"[bio_manager] Updated user_name for {user_id}: '{new_name}' (moved '{current_name}' to known_as)"
+        )
+
     def execute_action(self, action: dict, context: dict, bot, original_message):
         action_type = action.get("type")
         payload = action.get("payload", {}) or {}
@@ -1142,7 +1175,7 @@ class BioPlugin:
                 try:
                     # Special handling for user_name field - check if it's a "call me" request
                     if "user_name" in fields:
-                        update_user_name(uid, fields["user_name"])
+                        self.update_user_name(uid, fields["user_name"])
                         # Remove user_name from fields since it's been handled specially
                         remaining_fields = {
                             k: v for k, v in fields.items() if k != "user_name"
@@ -1173,38 +1206,7 @@ class BioPlugin:
 
         return {"success": False, "message": f"Unsupported action type: {action_type}"}
 
-    def update_user_name(user_id: str, new_name: str) -> None:
-        """Update user's primary name, moving old name to known_as if it exists."""
-        _ensure_user_exists(user_id)
-        current = get_bio_full(user_id)
-
-        # Get current user_name and known_as
-        current_name = current.get("user_name")
-        known_as = current.get("known_as", [])
-
-        # Parse known_as if it's a JSON string
-        if isinstance(known_as, str):
-            try:
-                known_as = json.loads(known_as)
-            except:
-                known_as = []
-
-        # If there's an existing name, move it to known_as
-        if current_name and current_name != new_name:
-            if current_name not in known_as:
-                known_as.append(current_name)
-
-        # Remove new name from known_as if it's there
-        if new_name in known_as:
-            known_as.remove(new_name)
-
-        # Update both fields
-        updates = {"user_name": new_name, "known_as": known_as}
-
-        update_bio_fields(user_id, updates)
-        log_info(
-            f"[bio_manager] Updated user_name for {user_id}: '{new_name}' (moved '{current_name}' to known_as)"
-        )
+    
 
     async def resolve_user_info(user_identifier: str) -> tuple[str, str] | None:
         """Resolve user identifier to (user_id, user_name) tuple.

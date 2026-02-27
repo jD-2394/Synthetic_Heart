@@ -2,7 +2,14 @@ import os
 import asyncio
 from datetime import datetime
 from types import SimpleNamespace
-
+from core.logging_utils import log_debug, log_warning, log_error, log_info
+from core.transport_layer import universal_send
+from core.core_initializer import register_interface, core_initializer
+from core.auto_response import request_llm_delivery
+try:
+    import asyncpraw
+except Exception:  # pragma: no cover - library missing in env
+    asyncpraw = None  # type: ignore
 try:
     from dotenv import load_dotenv
 except Exception:
@@ -13,15 +20,6 @@ except Exception:
 
 load_dotenv()
 
-try:
-    import asyncpraw
-except Exception:  # pragma: no cover - library missing in env
-    asyncpraw = None  # type: ignore
-
-from core.logging_utils import log_debug, log_warning, log_error, log_info
-from core.transport_layer import universal_send
-from core.core_initializer import register_interface, core_initializer
-from core.auto_response import request_llm_delivery
 
 
 class RedditInterface:

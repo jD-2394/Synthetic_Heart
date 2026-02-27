@@ -1,15 +1,6 @@
-import pytest
-
-pytest.skip(
-    "Legacy memory preflight removed (Recon replaces it)",
-    allow_module_level=True,
-)
-
 import asyncio
 from types import SimpleNamespace
 from datetime import datetime
-
-
 from core.prompt_engine import build_json_prompt
 
 

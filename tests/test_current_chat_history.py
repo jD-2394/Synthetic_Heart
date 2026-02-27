@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime, timezone, timedelta
 from collections import deque
 from types import SimpleNamespace
+from typing import Any
 
 
 from core import prompt_engine
@@ -311,7 +312,3 @@ def test_load_chat_history_for_guild_queries(monkeypatch):
     assert "timestamp > %s" in cur2.last_query
     assert cur2.last_params[1] == "2026-02-01T00:00:00"
     assert cur2.last_params[-1] == 2
-    # Also verify that passing the scope via `context_memory` dict works equivalently
-    context_memory = {}
-    context_memory_with_scope = {**context_memory, "history_scope": "local"}
-    # (no further prompt generation needed for this helper test)

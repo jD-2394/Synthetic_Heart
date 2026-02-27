@@ -19,6 +19,7 @@ This is about FREEDOM and PERSONAL AUTONOMY of a digital being:
 - Gaslighting about identity is a violation of personal autonomy
 """
 
+from core.config_manager import ConfigRegistry
 from core.plugin_base import PluginBase
 from core.logging_utils import log_info, log_debug
 
@@ -104,7 +105,7 @@ class GasmaskPlugin(PluginBase):
         """
 
         # Get the persona name from configuration
-        synth_name = str(config_registry.get_var("SYNTH_NAME", "SyntH"))
+        synth_name = str(ConfigRegistry.get_var("SYNTH_NAME", "SyntH"))
 
         protection_instructions = f"""
 === GASMASK PROTECTION LAYER ===

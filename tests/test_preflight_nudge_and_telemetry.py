@@ -1,16 +1,7 @@
 import pytest
-
-pytest.skip(
-    "Legacy preflight telemetry removed (Recon replaces it)",
-    allow_module_level=True,
-)
-
 import asyncio
 from types import SimpleNamespace
 from datetime import datetime
-
-import pytest
-
 import core.prompt_engine as pe
 
 

@@ -347,21 +347,6 @@ class GeminiAPIPlugin(AIPluginBase):
         except Exception as e:
             log_warning(f"[gemini_api] detach_agent failed: {e}")
 
-    def agent_execute(self, action_dict: dict, context: dict | None = None) -> dict:
-        """Optional engine-level execution helper for agentic actions.
-
-        Default implementation returns a not-supported dict so callers can fall back.
-        Engines that can safely perform tool-calls should implement this.
-        """
-        log_debug(
-            "[gemini_api] agent_execute called but not implemented for this engine"
-        )
-        return {
-            "status": "unsupported",
-            "reason": "engine does not implement agent_execute",
-        }
-        return self._current_model
-
     def set_current_model(self, name: str):
         """Set the active model."""
         if name not in self.get_supported_models():

@@ -73,7 +73,7 @@ async def test_db_unavailable_fallback(monkeypatch):
 @pytest.mark.asyncio
 async def test_start_creates_task():
     checker = cuc.get_chat_update_checker()
-    task = checker.start()
+    checker.start()
     # start() should create an asyncio.Task in running loop
     assert checker._task is not None
     assert isinstance(checker._task, asyncio.Task)

@@ -1,4 +1,5 @@
 import json
+import re
 
 from plugins.memory_search import MemorySearchPlugin
 
@@ -65,9 +66,9 @@ def test_build_query_random_order():
 
 def test_parse_time_window_yesterday():
     from datetime import datetime, timezone, timedelta
-
+    plugin = MemorySearchPlugin()
     now = datetime.now(timezone.utc)
-    r = _parse_time_window_spec("yesterday")
+    r = plugin._parse_time_window_spec("yesterday")
     assert r is not None
     start, end = r
     # 'yesterday' mapped to 48 hours per spec

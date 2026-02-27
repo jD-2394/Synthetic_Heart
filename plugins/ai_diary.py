@@ -17,6 +17,10 @@ from contextlib import asynccontextmanager
 
 from core.db import get_conn_ctx
 from core.logging_utils import log_error, log_info, log_debug, log_warning
+from core.core_initializer import register_plugin
+from core.config import get_active_cortex_engine
+from core.cortex_registry import get_cortex_registry
+
 
 # Injection priority for diary entries
 INJECTION_PRIORITY = 8  # Low priority - diary is sacrificial
@@ -31,9 +35,7 @@ def register_injection_priority():
 # Register priority when module is loaded
 register_injection_priority()
 
-from core.core_initializer import register_plugin
-from core.config import get_active_cortex_engine
-from core.cortex_registry import get_cortex_registry
+
 
 # Global flag to track if the plugin is enabled
 PLUGIN_ENABLED = True
@@ -191,19 +193,6 @@ def get_max_diary_chars(
     except Exception as e:
         log_warning(f"[ai_diary] Error calculating diary limit: {e}")
         return 8001  # Fallback
-
-
-async def _run_sync_async(coro):
-    """Run async function, handling all cases without creating new event loops."""
-    try:
-        # Get current running loop if available
-        loop = asyncio.get_running_loop()
-        # Just run the coroutine directly - we have a running loop
-        return await coro
-    except RuntimeError:
-        # No running loop, just run the coroutine directly
-        return await coro
-
 
 def _run_sync(coro):
     """Helper to run async functions in sync context with better error handling."""
@@ -674,7 +663,7 @@ async def add_diary_entry_async(
             continue
 
     try:
-        conn = await get_conn()
+        conn = await get_conn_ctx()
         async with conn.cursor() as cur:
             await cur.execute(
                 """

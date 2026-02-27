@@ -92,14 +92,14 @@ async def test_grillo_fire_and_forget_writes_fallback_when_activity_missing(
 
         # Read and assert contents
         with open(act_file, "r") as f:
-            lines = [json.loads(l) for l in f if l.strip()]
+            lines = [json.loads(line) for line in f if line.strip()]
         assert len(lines) >= 1
         # Last entry should have suggested_actions metadata
         assert "metadata" in lines[-1]
         assert "suggested_actions" in lines[-1]["metadata"]
 
         with open(exec_file, "r") as f:
-            lines = [json.loads(l) for l in f if l.strip()]
+            lines = [json.loads(line) for line in f if line.strip()]
         assert len(lines) >= 1
         assert lines[-1]["action_type"] == "schedule_message"
     finally:

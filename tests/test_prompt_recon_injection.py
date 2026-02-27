@@ -118,7 +118,7 @@ async def test_recon_keyword_normalization(monkeypatch):
     import core.recon as recon_mod
 
     # Call gather_recon_contributions with compound keywords
-    contribs = await recon_mod.gather_recon_contributions(
+    await recon_mod.gather_recon_contributions(
         message=None,
         context_memory=None,
         text="test",

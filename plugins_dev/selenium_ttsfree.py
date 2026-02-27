@@ -4,14 +4,12 @@ import asyncio
 import os
 import tempfile
 import time
-import shutil
 from typing import Any, Dict, List, Tuple, Optional
 
 try:  # pragma: no cover - import guard for test/container environments
     import undetected_chromedriver as uc  # type: ignore
 except Exception:  # pragma: no cover
     uc = None
-import subprocess
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -347,20 +345,6 @@ class SeleniumTTSFreePlugin:
             log_debug(
                 f"[selenium_ttsfree] Chromium log -> {chromium_log}, chromedriver log -> {chromedriver_log}"
             )
-
-            chromium_binary = (
-                shutil.which("chromium")
-                or shutil.which("chromium-browser")
-                or "/usr/bin/chromium"
-            )
-            try:
-                output = subprocess.check_output(
-                    [chromium_binary, "--version"], text=True
-                )
-            except Exception:
-                output = ""
-            except Exception:
-                output = ""
 
             # Launch driver
             try:

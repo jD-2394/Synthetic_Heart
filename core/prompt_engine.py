@@ -1,5 +1,9 @@
 # core/prompt_engine.py
 
+import random
+import time
+
+from core.db import get_conn_ctx
 from core.synth_tagging import extract_tags, expand_tags
 from core.logging_utils import log_debug, log_info, log_warning, log_error
 from core.json_utils import dumps as json_dumps

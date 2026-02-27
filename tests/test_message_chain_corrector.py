@@ -67,7 +67,7 @@ async def test_message_chain_triggers_corrector_for_unregistered_action(monkeypa
     msg.from_cortex = True
 
     # Call the message chain as if the source was LLM
-    result = await message_chain.handle_incoming_message(
+    await message_chain.handle_incoming_message(
         bot=None,
         message=msg,
         text='{"actions":[{"type":"message","payload":{"text":"hello","interface_path":"telegram_bot/123"}}]}',
@@ -131,7 +131,7 @@ async def test_message_chain_triggers_corrector_for_unregistered_top_level_key(
         chat_id=123, interface_path="telegram_bot/123", from_cortex=True
     )
 
-    result = await message_chain.handle_incoming_message(
+    await message_chain.handle_incoming_message(
         bot=None,
         message=msg,
         text='{"actions": [{"type": "create_personal_diary_entry", "payload": {"interaction_summary": "x"}}], "message": "ciao"}',
