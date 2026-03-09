@@ -7,7 +7,6 @@ import asyncio
 from typing import Any, Dict, Optional
 from types import SimpleNamespace
 from core.logging_utils import log_debug, log_warning, log_error, log_info
-from plugins.grillo.grillo_impl import GrilloPlugin
 
 # Interface-specific utilities are loaded dynamically by interfaces.
 # The transport layer provides generic messaging functionality only.
@@ -706,9 +705,9 @@ async def _grillo_fire_and_forget(
             log_info(
                 f"[grillo] Auto-executed {len(actions_to_exec)} action(s); result: {result}"
             )
-            if GrilloPlugin:
+            if grillo_plugin and hasattr(grillo_plugin, "create_activity_log"):
                 try:
-                    activity_id = await GrilloPlugin.create_activity_log(
+                    activity_id = await grillo_plugin.create_activity_log(
                         beat_type="grillo_auto_exec",
                         prompt_text=str(
                             {"user": original_user_message, "llm_reply": llm_reply}
@@ -1215,9 +1214,7 @@ async def universal_send(interface_send_func, *args, text: str = None, **kwargs)
                 )
 
                 # After processing actions, check if there's text outside the JSON that should be sent
-                if json_data and (
-                    json_data.get("prefix") or json_data.get("suffix")
-                ):
+                if json_data and (json_data.get("prefix") or json_data.get("suffix")):
                     companion_text = ""
 
                     # Combine prefix and suffix, removing duplicate content
@@ -2170,7 +2167,7 @@ async def notify_corrector_of_system_message(
                         checker_context["last_action_result"] = getattr(
                             message, "last_action_result"
                         )
-                    # Attach the final chain result (ACTIONS_EXECUTED / FORWARD_AS_TEXT / etc.)
+                    # Attach the final chain result (ACTIONS_EXECUTED / BLOCKED / LLM_FAILED / etc.)
                     try:
                         checker_context["chain_result"] = result
                     except Exception:
