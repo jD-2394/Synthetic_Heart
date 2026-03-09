@@ -41,7 +41,7 @@ RUN echo 'Package: snapd' > /etc/apt/preferences.d/no-snap && \
     apt-get install -y --no-install-recommends \
       python3 python3-venv python3-pip \
     git curl wget unzip nano vim \
-      lsb-release ca-certificates \
+      lsb-release ca-certificates dos2unix \
     openssl \
       htop net-tools iputils-ping \
       ffmpeg mariadb-client libmariadb3 libmariadb-dev && \
@@ -134,6 +134,7 @@ RUN echo "$GITVERSION_TAG" > /app/version.txt
 # S6 Services Setup
 COPY webtop/s6-services/synth /etc/s6-overlay/s6-rc.d/synth
 RUN chmod +x /etc/s6-overlay/s6-rc.d/synth/run && \
+    echo 'longrun' > /etc/s6-overlay/s6-rc.d/synth/type && \
     mkdir -p /etc/s6-overlay/s6-rc.d/user/contents.d && \
     echo synth > /etc/s6-overlay/s6-rc.d/user/contents.d/synth && \
     chown -R abc:abc /etc/s6-overlay/s6-rc.d/synth
@@ -154,6 +155,10 @@ RUN mv /usr/bin/thunar /usr/bin/thunar-real && \
   rm -rf /tmp/*
 
 COPY webtop/root /
+
+# Convert CRLF to LF for shell scripts, which can cause issues if edited on Windows.
+# This is especially important for s6-overlay scripts and startup scripts.
+RUN find /defaults /etc/s6-overlay /app /usr/local/bin -type f -exec dos2unix {} +
 
 # Permissions
 RUN chown -R abc:abc /app && \

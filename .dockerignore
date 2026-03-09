@@ -19,3 +19,23 @@ skins/Rekku
 skins/temp
 node_modules/
 *.vroid
+# .dockerignore
+
+# Git
+.git
+.gitignore
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Local data and logs
+logs/
+backups/
+*.db
+
+# Python cache
+*.pyc
+__pycache__/
+.venv/

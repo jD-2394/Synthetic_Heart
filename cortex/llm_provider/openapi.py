@@ -200,7 +200,7 @@ try:
     register_exposed_var(
         "OPENAPI_DEFAULT_CONTEXT",
         label="Default Context Window (chars)",
-        default="128000",
+        default="12000",
         value_type=int,
         ui_type="number",
         description="Default context window in characters (used if endpoint doesn't provide it).",
@@ -356,7 +356,7 @@ OPENAPI_SUPPORTS_TOOLS = config_registry.get_var(
 
 OPENAPI_DEFAULT_CONTEXT = config_registry.get_var(
     "OPENAPI_DEFAULT_CONTEXT",
-    128000,
+    12000,
     label="Default Context Window",
     description="Default context window in characters.",
     group="llm",
@@ -386,7 +386,7 @@ class OpenAPIModel:
 
     id: str
     name: str
-    context_length: int = 128000
+    context_length: int = 12000
     max_completion_tokens: int = 4096
 
     @classmethod
@@ -396,7 +396,7 @@ class OpenAPIModel:
         name = data.get("name", model_id)
 
         # Try to extract context length from various possible fields
-        ctx = 128000  # default
+        ctx = 12000  # default
         if "context_length" in data:
             ctx = int(data["context_length"]) if data["context_length"] else ctx
         elif "max_model_len" in data:
@@ -925,7 +925,13 @@ class OpenAPIPlugin(AIPluginBase):
     ) -> str:
         """Send chat completion request to OpenAPI endpoint."""
         base_url = str(OPENAPI_BASE_URL).strip()
-        url = f"{base_url.rstrip('/')}/chat/completions"
+
+        # Handle inconsistent LM Studio paths where chat completions is not under /api
+        if "/api/v1" in base_url:
+            # For chat, use /v1 instead of /api/v1
+            url = f"{base_url.replace('/api/v1', '/v1').rstrip('/')}/chat/completions"
+        else:
+            url = f"{base_url.rstrip('/')}/chat/completions"
 
         # Build messages
         messages: list[dict[str, Any]] = [
@@ -957,6 +963,7 @@ class OpenAPIPlugin(AIPluginBase):
             "model": self._current_model,
             "messages": messages,
             "max_tokens": max_tokens,
+            "stream": False,
         }
 
         # Log outgoing request

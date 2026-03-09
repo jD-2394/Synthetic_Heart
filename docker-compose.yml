@@ -1,5 +1,6 @@
 services:
   synth:
+    build: .
     image: xargonwan/synthetic_heart:${IMAGE_VERSION:-latest-develop}
     container_name: synth
     hostname: synthetic-heart
@@ -8,9 +9,10 @@ services:
       - .env
 
     ports:
-      - "${SYNTH_WEBUI_HTTPS_PORT:-8000}:${SYNTH_WEBUI_HTTPS_PORT:-8000}"
-      - "${SELKIES_HTTPS_PORT:-3006}:3001"
-      - "${OLLAMA_PORT:-11434}:11434"
+      - "0.0.0.0:${SYNTH_WEBUI_HTTPS_PORT:-8000}:${SYNTH_WEBUI_HTTPS_PORT:-8000}"
+      - "0.0.0.0:${SYNTH_WEBUI_HTTP_PORT:-8080}:${SYNTH_WEBUI_HTTP_PORT:-8080}"
+      - "0.0.0.0:${SELKIES_HTTPS_PORT:-3006}:3001"
+      - "0.0.0.0:${OLLAMA_PORT:-11434}:11434"
 
     volumes:
       - synth_data:/config
